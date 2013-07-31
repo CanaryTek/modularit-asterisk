@@ -1,0 +1,55 @@
+;
+; SIP Configuration example for Asterisk
+[general]
+context=public                  ; Default context for incoming calls. Defaults to 'default'
+allowguest=no                   ; Allow or reject guest calls (default is yes)
+allowoverlap=no                 ; Disable overlap dialing support. (Default is yes)
+
+udpbindaddr=0.0.0.0             ; IP address to bind UDP listen socket to (0.0.0.0 binds to all)
+                                ; Optionally add a port number, 192.168.1.1:5062 (default is port 5060)
+
+tcpenable=no                    ; Enable server for incoming TCP connections (default is no)
+tcpbindaddr=0.0.0.0             ; IP address for TCP server to bind to (0.0.0.0 binds to all interfaces)
+
+;tlsenable=no                   ; Enable server for incoming TLS (secure) connections (default is no)
+;tlsbindaddr=0.0.0.0            ; IP address for TLS server to bind to (0.0.0.0) binds to all interfaces)
+                                ; Optionally add a port number, 192.168.1.1:5063 (default is port 5061)
+                                ; Remember that the IP address must match the common name (hostname) in the
+                                ; certificate, so you don't want to bind a TLS socket to multiple IP addresses.
+                                ; For details how to construct a certificate for SIP see 
+                                ; http://tools.ietf.org/html/draft-ietf-sip-domain-certs
+
+;tcpauthtimeout = 30            ; tcpauthtimeout specifies the maximum number
+				; of seconds a client has to authenticate.  If
+				; the client does not authenticate beofre this
+				; timeout expires, the client will be
+                                ; disconnected. (default: 30 seconds)
+
+;tcpauthlimit = 100             ; tcpauthlimit specifies the maximum number of
+				; unauthenticated sessions that will be allowed
+                                ; to connect at any given time. (default: 100)
+
+transport=udp                   ; Set the default transports.  The order determines the primary default transport.
+                                ; If tcpenable=no and the transport set is tcp, we will fallback to UDP.
+
+srvlookup=yes                   ; Enable DNS SRV lookups on outbound calls
+
+alwaysauthreject = no 
+
+outboundproxy=sip.canarytek.com 
+
+rtp_engine=asterisk            ; RTP engine to use when communicating with the device
+
+domain=sip.canarytek.com
+domain=asterisk.canarytek.com
+
+[authentication]
+insecure=invite
+
+[kamailio]
+type=peer
+host=<%= node['asterisk']['voicemail']['incoming_proxy'] %>
+context=from-sip
+allow=all
+insecure=invite
+

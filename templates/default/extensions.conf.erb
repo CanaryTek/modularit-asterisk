@@ -1,0 +1,17 @@
+[general]
+static=yes
+writeprotect=no
+
+[globals]
+
+[public]
+exten => _X.,1,VoiceMail(${EXTEN})
+
+[from-sip]
+; Calls for PSTN
+exten => _+X.,1,Answer()
+exten => _+X.,n,Playback(tt-monkeys)
+
+; VoiceMail
+exten => _.,1,Answer()
+exten => _.,n,VoiceMail(${EXTEN})

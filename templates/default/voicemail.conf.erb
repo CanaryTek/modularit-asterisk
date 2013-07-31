@@ -1,0 +1,32 @@
+; Voicemail Configuration
+
+[general]
+; Formats for writing Voicemail.  Note that when using IMAP storage for
+; voicemail, only the first format specified will be used.
+;format=g723sf|wav49|wav
+format=wav49|gsm|wav
+serveremail=asterisk
+; Should the email contain the voicemail as an attachment
+attach=yes
+; How many milliseconds to skip forward/back when rew/ff in message playback
+skipms=3000
+; How many seconds of silence before we end the recording
+maxsilence=10
+; Silence threshold (what we consider silence: the lower, the more sensitive)
+silencethreshold=128
+; Max number of failed login attempts
+maxlogins=3
+
+; 24h date format
+emaildateformat=%A, %d %B %Y at %H:%M:%S
+
+[default]
+1234 => 4242,Example Mailbox,root@localhost
+
+[other]
+;The intro can be customized on a per-context basis
+;directoryintro=dir-company2
+1234 => 5678,Company2 User,root@localhost
+
+[default]
+test => 1234,Canarytek,info@canarytek.com,,imapuser=ess|imappassword=g3tbusy|imapfolder=notinbox
