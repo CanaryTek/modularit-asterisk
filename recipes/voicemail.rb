@@ -12,7 +12,11 @@ include_recipe 'modularit-asterisk'
     owner "asterisk"
     group "asterisk"
     mode 00644
-    action :create
+    if node['asterisk']['voicemail']['manage_config']
+      action :create
+    else
+      action :create_if_missing
+    end
   end
 end
 

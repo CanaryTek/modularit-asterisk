@@ -24,7 +24,7 @@ Usage
 
 Once you have your server running, if you wan't to manage your configs by yourself insted of using Chef, you can set the following attribute in the server's chef node:
 
-    node['asterisk']['server']['manage_configs']=false
+    node['asterisk']['voicemail']['manage_configs']=false
 
 Contributing
 ------------
