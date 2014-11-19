@@ -29,4 +29,6 @@ emaildateformat=%A, %d %B %Y at %H:%M:%S
 1234 => 5678,Company2 User,root@localhost
 
 [default]
-test => 1234,Canarytek,info@canarytek.com,,imapuser=ess|imappassword=g3tbusy|imapfolder=notinbox
+<% @asterisk_voicemails.each do |n| -%>
+<%= "#{n["extension"]} => #{n['password']},#{n['user_name']},#{n['email_address']},#{n['pager_email_address']},#{n['options']}" %>
+<% end -%>

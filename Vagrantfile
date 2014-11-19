@@ -70,14 +70,12 @@ Vagrant.configure("2") do |config|
   # to skip installing and copying to Vagrant's shelf.
   # config.berkshelf.except = []
 
-  config.vm.provision :chef_solo do |chef|
-    chef.cookbooks_path = ["../../cookbooks", "../../vendor-cookbooks"]
+  config.vm.provision :chef_client do |chef|
+    chef.chef_server_url = "http://chef.canarytek.com:4000"
+    #chef.cookbooks_path = ["../../cookbooks", "../../vendor-cookbooks"]
+    chef.validation_key_path = "../../.chef/validation.pem"
+    chef.environment = "devel"
     chef.json = {
-      :mysql => {
-        :server_root_password => 'rootpass',
-        :server_debian_password => 'debpass',
-        :server_repl_password => 'replpass'
-      },
       :asterisk => {
         :voicemail => {
           :incoming_proxy => "192.168.122.240"

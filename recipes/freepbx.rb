@@ -1,13 +1,7 @@
 # Cookbook Name:: asterisk
-# Recipe:: default
+# Recipe:: FreePBX
 
-case node['platform']
-when "debian", "ubuntu"
-  include_recipe 'apt'
-when "centos","redhat"
-  include_recipe 'yum'
-  include_recipe "yum::epel"
-end
+include_recipe "modularit-asterisk::default"
 
 # Install build dependencies
 packages = node['asterisk']['build_deps'].split
@@ -17,16 +11,7 @@ packages.each do |pkg|
   end
 end
 
-case node['platform']
-when "centos","redhat"
-  bash "Workaround for http://tickets.opscode.com/browse/COOK-1210" do 
-    code <<-EOH
-      echo 0 > /selinux/enforce
-    EOH
-  end
-end
-
-version = node['asterisk']['server']['version']
+version = node['freepbx']['server']['version']
 
 # Download libpri source file
 remote_file "#{Chef::Config[:file_cache_path]}/#{node['asterisk']['server']['libpri_file']}" do
