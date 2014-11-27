@@ -6,14 +6,14 @@ Vagrant.configure("2") do |config|
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
-  config.vm.hostname = "chef-repo-clean-berkshelf"
+  config.vm.hostname = "modularit-sambadc"
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "centos64"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "https://dl.dropbox.com/u/31081437/Berkshelf-CentOS-6.3-x86_64-minimal.box"
+  config.vm.box_url = "/home/kuko/iso/centos64.box"
 
   # Assign this VM to a host-only network IP, allowing you to access it
   # via the IP. Host-only networks can talk to the host machine as well as
@@ -36,6 +36,9 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
+  #config.vm.synced_folder "../data", "/vagrant_data", :disabled => true, :type => "nfs"
+  #config.vm.synced_folder ".", "/vagrant", :disabled => true, :type => "nfs"
+  #config.vm.synced_folder ".", "/vagrant", :type => "rsync"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -52,11 +55,22 @@ Vagrant.configure("2") do |config|
   # View the documentation for the provider you're using for more
   # information on available options.
 
-  config.ssh.max_tries = 40
-  config.ssh.timeout   = 120
+  #config.ssh.max_tries = 40
+  #config.ssh.timeout   = 120
+
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.driver = "qemu"
+    libvirt.host = "localhost"
+    libvirt.memory = 1024
+    libvirt.cpus = 2
+    libvirt.connect_via_ssh = true
+    libvirt.username = "root"
+    libvirt.id_ssh_key_file = "id_dsa"
+    libvirt.storage_pool_name = "default"
+  end
 
   # The path to the Berksfile to use with Vagrant Berkshelf
-  # config.berkshelf.berksfile_path = "./Berksfile"
+  #config.berkshelf.berksfile_path = "../../Berksfile"
 
   # Enabling the Berkshelf plugin. To enable this globally, add this configuration
   # option to your ~/.vagrant.d/Vagrantfile file
@@ -70,11 +84,8 @@ Vagrant.configure("2") do |config|
   # to skip installing and copying to Vagrant's shelf.
   # config.berkshelf.except = []
 
-  config.vm.provision :chef_client do |chef|
-    chef.chef_server_url = "http://chef.canarytek.com:4000"
-    #chef.cookbooks_path = ["../../cookbooks", "../../vendor-cookbooks"]
-    chef.validation_key_path = "../../.chef/validation.pem"
-    chef.environment = "devel"
+  config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = ["../../cookbooks", "../../vendor-cookbooks"]
     chef.json = {
       :asterisk => {
         :voicemail => {
@@ -82,9 +93,8 @@ Vagrant.configure("2") do |config|
         },
       }
     }
-
     chef.run_list = [
-        "recipe[modularit-asterisk::voicemail]"
+        "recipe[modularit-asterisk::default]"
     ]
   end
 end

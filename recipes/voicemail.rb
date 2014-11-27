@@ -2,8 +2,7 @@
 # Recipe::  voicemail 
 
 # Include base recipe
-include_recipe 'modularit-asterisk'
-
+include_recipe 'modularit-asterisk::default'
 
 # Basic config files
 ["extensions.conf","logger.conf","modules.conf","sip.conf"].each do |file|
