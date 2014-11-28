@@ -14,10 +14,6 @@ default['asterisk']['server']['asterisk_file'] = "asterisk-#{node['asterisk']['s
 default['asterisk']['server']['dahdi_url'] = "http://downloads.asterisk.org/pub/telephony/dahdi-linux-complete/"
 default['asterisk']['server']['dahdi_version'] = "2.7.0"
 default['asterisk']['server']['dahdi_file'] = "dahdi-linux-complete-#{node['asterisk']['server']['dahdi_version']}+#{node['asterisk']['server']['dahdi_version']}.tar.gz"
-default['asterisk']['server']['sounds_url'] = "http://downloads.asterisk.org/pub/telephony/sounds/"
-# Langs to download. Sorry, no extra-sounds-es :(
-default['asterisk']['server']['sounds_langs'] = %w{en es}
-default['asterisk']['server']['sounds_formats'] = %w{g729 gsm wav}
 
 case node['platform_family']
 when 'debian'
