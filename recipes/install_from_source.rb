@@ -52,35 +52,13 @@ remote_file "#{Chef::Config[:file_cache_path]}/#{node['asterisk']['server']['ast
   action :create_if_missing
 end
 
-## Download sound files
-node['asterisk']['server']['sounds_formats'].each do |format|
-  node['asterisk']['server']['sounds_langs'].each do |lang|
-    # Download core sounds in all configured languages
-    file_name="asterisk-core-sounds-#{lang}-#{format}-current.tar.gz"
-    remote_file "#{Chef::Config[:file_cache_path]}/#{file_name}" do
-      file="#{node['asterisk']['server']['sounds_url']}/#{file_name}"
-      Chef::Log.info("Downloading #{file}")
-      source file
-      action :create_if_missing
-    end
-  end
-  # Download extra sounds only available in english
-  file_name="asterisk-extra-sounds-en-#{format}-current.tar.gz"
-  remote_file "#{Chef::Config[:file_cache_path]}/#{file_name}" do
-    file="#{node['asterisk']['server']['sounds_url']}/#{file_name}"
-    Chef::Log.info("Downloading #{file}")
-    source file
-    action :create_if_missing
-  end
-end
-
 # Compile and install dahdi
 bash "compile-dahdi" do
   cwd Chef::Config[:file_cache_path]
   code <<-EOH
     yum install -y kernel-devel-`uname -r`
     tar zxvf #{node['asterisk']['server']['dahdi_file']}
-    cd dahdi-*
+    cd dahdi-#{node['asterisk']['server']['dahdi_version']}
     make
     make install
     make config
@@ -88,13 +66,12 @@ bash "compile-dahdi" do
   creates "/usr/sbin/dahdi_cfg"
 end
 
-
 # Compile and install libpri
 bash "compile-libpri" do
   cwd Chef::Config[:file_cache_path]
   code <<-EOH
     tar zxvf #{node['asterisk']['server']['libpri_file']}
-    cd libpri-*
+    cd libpri-#{node['asterisk']['server']['libpri_version']}
     make
     make install
   EOH
@@ -113,9 +90,15 @@ bash "compile-asterisk" do
   cwd Chef::Config[:file_cache_path]
   code <<-EOH
     tar zxvf #{node['asterisk']['server']['asterisk_file']}
-    cd asterisk-*
+    cd asterisk-#{node['asterisk']['server']['asterisk_version']}
+    sh contrib/scripts/install_prereq install
     ./configure
     make
+    # Compile addons
+    #contrib/scripts/get_mp3_source.sh
+    #cp menuselect.makeopts{,.safe}
+    #sed 's/format_mp3//' menuselect.makeopts.safe > menuselect.makeopts
+    #make addons
     make install
     make config
     # Create config variables
@@ -130,36 +113,4 @@ bash "compile-asterisk" do
   EOH
   creates "/usr/sbin/asterisk"
 end
-
-# Unpack core sound files
-node['asterisk']['server']['sounds_langs'].each do |lang|
-  sounds_dir="/var/lib/asterisk/sounds/#{lang}"
-  directory sounds_dir do
-    action :create
-    owner "asterisk"
-    group "asterisk"
-  end
-  node['asterisk']['server']['sounds_formats'].each do |format|
-    file="#{Chef::Config[:file_cache_path]}/asterisk-core-sounds-#{lang}-#{format}-current.tar.gz"
-    Chef::Log.info("Unpacking #{file}")
-    execute "unpack-core-sounds-#{format}" do
-      cwd sounds_dir
-      command "tar xzf #{file} && chown -R asterisk.asterisk #{sounds_dir}"
-      creates "#{sounds_dir}/agent-alreadyon.#{format}"
-    end
-  end
-end
-
-# Unpack extra sound files. Only available in "en" language
-sounds_dir="/var/lib/asterisk/sounds/en"
-node['asterisk']['server']['sounds_formats'].each do |format|
-  file="#{Chef::Config[:file_cache_path]}/asterisk-extra-sounds-en-#{format}-current.tar.gz"
-  Chef::Log.info("Unpacking #{file}")
-  execute "unpack-extra-sounds-#{format}" do
-    cwd sounds_dir
-    command "tar xzf #{file} && chown -R asterisk.asterisk #{sounds_dir}"
-    creates "#{sounds_dir}/OfficeSpace.#{format}"
-  end
-end
-
 
